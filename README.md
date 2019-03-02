@@ -21,6 +21,17 @@ As mentioned, the specifications here (mostly) came from the analysis of
 MyAnimeList's official Android app and some popular third party applications.
 It uses MAL's private (or at least unpublished) APIs and is subject to change.
 
+## Table of Contents
+
+0. [Introduction](#introduction)
+1. [Table of Contents](#table-of-contents)
+2. [Requests](#requests)
+3. [Responses](#responses)
+4. [Authentication and Authorization](#authentication-and-authorization)
+   * [Password Grant](#password-grant)
+   * [Refresh Token Grant](#refresh-token-grant)
+   * [Handle Authentication Responses](#handle-authentication-responses)
+
 ## Requests
 
 API Endpoint: `https://api.myanimelist.net/v0.21`
@@ -157,10 +168,14 @@ client_id=6114d00ca681b7701d1e15fe11a4987e&grant_type=refresh_token&refresh_toke
 
 | Entry              | Value                                                  |
 | ------------------ | ------------------------------------------------------ |
-| `token_type`       | **String**: `Bearer`                                               |
+| `token_type`       | **String**: `Bearer`                                   |
 | `expires_in`       | **Integer**: The lifespan of the responded access token in seconds, after which the client needs to be reauthenticated. |
 | `access_token`     | **String**: The access token that should be included in further requests from this client. |
 | `refresh_token`    | **String**: The refresh token that can be used to re-authenticate the client with `Refresh Token Grant` |
+
+You should persist the `refresh_token` in a secure location. When the `access_token`
+expires after `expires_in` seconds, use the `refresh_token` to re-authenticate the
+session. See [Refresh Token Grant](#refresh-token-grant).
 
 > Example Response
 ```
@@ -174,6 +189,8 @@ Content-Type: application/json; charset=UTF-8
   "refresh_token": "xxxx"
 }
 ```
+
+Further requests should be made with the `Authorization` header. See [Making Requests](#requests).
 
 * On an unsuccessful authentication, the server responds an error HTTP status code
   and a JSON object with the following entries:
