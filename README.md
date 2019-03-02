@@ -34,6 +34,8 @@ It uses MAL's private (or at least unpublished) APIs and is subject to change.
 5. [Requesting Resources](#requesting-resources)
    * [Paging](#paging)
    * [Fields](#fields)
+6. [References](#references)
+7. [Response Objects](#response-objects)
 
 ## Requests
 
@@ -166,7 +168,7 @@ client_id=6114d00ca681b7701d1e15fe11a4987e&grant_type=refresh_token&refresh_toke
 
 ### Handle Authentication Responses
 
-* On a successful authentication, the server responds `200 OK` and a JSON
+* Upon a successful authentication, the server responds `200 OK` and a JSON
   object with the following entries:
 
 | Entry              | Value                                                  |
@@ -195,7 +197,7 @@ Content-Type: application/json; charset=UTF-8
 
 Further requests should be made with the `Authorization` header. See [Making Requests](#requests).
 
-* On an unsuccessful authentication, the server responds an error HTTP status code
+* Upon an unsuccessful authentication, the server responds an error HTTP status code
   and a JSON object with the following entries:
 
 | Entry               | Value                                                         |
@@ -258,8 +260,8 @@ next page.
 
 When you make a request to a specific resource, you can set the `fields`
 parameter in your URL query to limit the fields responded by the server.
-* Includes a `fields` parameter whenever you can. This increases the load
-  speed and (perhaps) decreases the load on MAL's server as well.
+* Includes a `fields` parameter whenever you can. This decreases the load
+  time and (perhaps) decreases the load on MAL's server as well.
 * The value of the `fields` parameter is a comma seperated list
   corresponding to the JSON keys that will be returned in the response.
 
@@ -267,4 +269,101 @@ parameter in your URL query to limit the fields responded by the server.
 ```
 https://api.myanimelist.net/v0.21/anime?q=An+Anime+Title&fields=alternative_titles,media_type,my_list_status{start_date,finish_date}
 ```
+
+## References
+
+A list of known request paths and response objects.
+* Paths are relative to the API endpoint: `https://api.myanimelist.net/v0.21`
+* Responses are JSON encoded objects with utf8 encodings.
+
+### Search Anime
+
+* **Request Path**: `/anime`
+* Method: `GET`, response supports paging
+
+#### Parameters
+
+| Parameter | Value |
+| --------- | ----- |
+| `q`       | **String**: Keywords to be used as search parameters |
+
+#### Response
+
+* Root Response Object: `Object`
+  * **`data`**: `Array<AnimeObject>` - A list of [`AnimeObject`](#animeobject). The results from the search.
+
+## Response Objects
+
+### `AnimeObject`
+
+An `AnimeObject` represents an anime in MAL's database.
+
+* **`AnimeObject`**: `Object`
+  * **`nodnum_favoritese
+    * **`alternative_titles`**: [`AlternativeTitlesObject`](#alternativetitlesobject)
+    * **`average_episode_duration`**: Int - The average duration (in seconds) of the episodes.
+    * **`broadcast`**: [`BroadcastObject`](#broadcastobject)
+    * **`created_at`**: [`Date`](#date)
+    * **`end_date`**: [`CalendarDate`](#calendardate) - The date at which the anime ended.
+    * **`id`**: `Int` - The identifier of this media on MyAnimeList.
+    * **`main_picture`**: [`PictureObject`](#pictureobject) - The poster artwork of the anime.
+    * **`mean`**: `Double` - The mean score of this media on MyAnimeList.
+    * **`media_type`**: `String` - The type of this media (e.g. `tv`).
+    * **`nsfw`**: `String` - The NSFW state for this media (e.g. `white`).
+    * **`num_episodes`**: `Int` - The number of episodes in this anime.
+    * **`num_favorites`**: `Int` - The number of users that added this media to their favorites.
+    * **`num_list_users`**: `Int` - The number of uses that added this media to their lists.
+    * **`num_scoring_users`**: `Int` - (?) The number of users that voted for the scores.
+    * **`popularity`**: `Int` - The popularity rankings of this anime.
+    * **`rank`**: `Int` - The rankings of this anime.
+    * **`start_date`**: [`CalendarDate`](#calendardate) - The date at which the anime started.
+    * **`start_season`**: [`SeasonObject`](#seasonobject) - The season at which the anime started broadcasting.
+    * **`status`**: `String` - An enumeration representing the broadcasting status of the anime (E.g. `finished_airing`).
+    * **`title`**: `String` - The canonical (?) title of the anime.
+    * **`updated_at`**: [`Date`](#date) - The last time that the information is updated on MyAnimeList.
+
+### `AlternativeTitlesObject`
+
+The set of titles and synonyms of the anime.
+
+* **`AlternativeTitlesObject`**: `Object`
+  * **`en`**: `String` - The English title of the anime
+  * **`ja`**: `String` - The original (native) name of the anime
+  * **`synonyms`**: `Array<String>` - A list of synonyms of the anime
+
+### `BroadcastObject`
+
+The broadcasting schedule of the anime.
+
+* **`BroadcastObject`**: `Object`
+  * **`day_of_the_week`**: `String` - A lower-cased string of the day that the media is released in a week. E.g. `thursday`
+  * **`start_time`**: `String` - The time of the broadcast. E.g. `19:30`
+
+### `CalendarDate`
+
+A simple date formatted as `yyyy-mm-dd` (e.g. `2007-02-08`).
+
+* **`CalendarDate`**: `String`
+
+### `Date`
+
+A specific time.
+
+* **`Date`**: `String` - A [`ISO 8601`](https://en.wikipedia.org/wiki/ISO_8601) formatted time string.
+
+### `PictureObject`
+
+A set of pictures.
+
+* **`PictureObject`**: `Object`
+  * **`large`**: `String` - An absulute URL to the high(er) resolution picture
+  * **`medium`**: `String` - An absulute URL to the medium resolution picture
+
+### `SeasonObject`
+
+Representing a season in a year.
+
+* **`SeasonObject`**: `Object`
+  * **`season`**: `String` - The season in a year (E.g. `fall`).
+  * **`year`**: `Int` - The four digits integer representation of a year (E.g. `2002`).
 
