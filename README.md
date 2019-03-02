@@ -299,7 +299,7 @@ A list of known request paths and response objects.
 An `AnimeObject` represents an anime in MAL's database.
 
 * **`AnimeObject`**: `Object`
-  * **`nodnum_favoritese
+  * **`node`**: `Object`
     * **`alternative_titles`**: [`AlternativeTitlesObject`](#alternativetitlesobject)
     * **`average_episode_duration`**: Int - The average duration (in seconds) of the episodes.
     * **`broadcast`**: [`BroadcastObject`](#broadcastobject)
