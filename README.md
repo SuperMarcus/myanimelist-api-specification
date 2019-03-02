@@ -14,12 +14,15 @@ for its unstable APIs.
 This document is intended to create a up-to-date speficiation for the private
 APIs that MyAnimeList is using in its official mobile apps. The goal is to
 encourage the developments of third party and (particuarly) **open source**
-applications. Feel free to create a pull request / issue if you have something
-related that you want to share or change.
+applications.
 
 As mentioned, the specifications here (mostly) came from the analysis of
 MyAnimeList's official Android app and some popular third party applications.
 It uses MAL's private (or at least unpublished) APIs and is subject to change.
+
+This document only discovers the anime-related APIs. But feel free to create
+a pull request / issue if you have something related that you want to share or
+change.
 
 ## Table of Contents
 
@@ -56,6 +59,9 @@ X-MAL-Client-ID: 6114d00ca681b7701d1e15fe11a4987e
 > **Note**: Always include the `X-MAL-Client-ID` header. Currently the only
 > known client id is that of the MAL's official Android app.
 >
+
+If the request is intended for mutations (e.g. modify user library entries),
+the request body is url-form encoded with content type: `application/x-www-form-urlencoded`.
 
 ## Responses
 
@@ -264,6 +270,8 @@ parameter in your URL query to limit the fields responded by the server.
   time and (perhaps) decreases the load on MAL's server as well.
 * The value of the `fields` parameter is a comma seperated list
   corresponding to the JSON keys that will be returned in the response.
+* If you want to includes fields in the sub-sections of the response objects,
+  use `<Subsection Name>{<Subsection Entry 1>, <Subsection Entry 2>, <Subsection Entry 3>...}`.
 
 > Example Request URL with Fields parameter
 ```
@@ -292,6 +300,47 @@ A list of known request paths and response objects.
 * Root Response Object: `Object`
   * **`data`**: `Array<AnimeObject>` - A list of [`AnimeObject`](#animeobject). The results from the search.
 
+### Library Entries
+
+* **Request Path**: `/users/<User Identifier>/animelist`
+* Method: `GET`, response supports paging
+
+#### Parameters
+
+| Parameter | Value |
+| --------- | ----- |
+| `sort`    | **[SortingMethodEnum](#sortingmethodenum)**: The method of sorting the responsing entries. |
+| `status`  | **[ListStatusEnum](#liststatusenum)**: Filter the status of the entries. |
+
+#### Response
+
+* Root Response Object: `Object`
+  * **`data`**: `Array<AnimeObject>` - A list of [`AnimeObject`](#animeobject).
+
+### Update Entries
+
+* **Request Path**: `/anime/<Anime Identifier>/my_list_status`
+* Method: `PUT`
+
+#### Request Parameters
+
+The parameters are url-form encoded in the body of the request.
+* The request parameters can be one of the entries in the [`MyListStatusObject`](#myliststatusobject)
+
+#### Response
+
+* Root Response Object: [`MyListStatusObject`](#myliststatusobject) - The updated status object
+
+### Reference to the Current User
+
+You can reference to the currently authenticated user with the
+`@me` placeholder in the request URL.
+
+> Example Request URL
+```
+https://api.myanimelist.net/v0.21/users/@me/animelist
+```
+
 ## Response Objects
 
 ### `AnimeObject`
@@ -319,17 +368,19 @@ An `AnimeObject` represents an anime in MAL's database.
     * **`start_date`**: [`CalendarDate`](#calendardate) - The date at which the anime started.
     * **`start_season`**: [`SeasonObject`](#seasonobject) - The season at which the anime started broadcasting.
     * **`status`**: `String` - An enumeration representing the broadcasting status of the anime (E.g. `finished_airing`).
+    * **`synopsis`**: `String` - The synopsis of the anime.
     * **`title`**: `String` - The canonical (?) title of the anime.
     * **`updated_at`**: [`Date`](#date) - The last time that the information is updated on MyAnimeList.
+    * **`my_list_status`**: [`MyListStatusObject`](#myliststatusobject)
 
 ### `AlternativeTitlesObject`
 
 The set of titles and synonyms of the anime.
 
 * **`AlternativeTitlesObject`**: `Object`
-  * **`en`**: `String` - The English title of the anime
-  * **`ja`**: `String` - The original (native) name of the anime
-  * **`synonyms`**: `Array<String>` - A list of synonyms of the anime
+  * **`en`**: `String` - The English title of the media
+  * **`ja`**: `String` - The original (native) name of the media
+  * **`synonyms`**: `Array<String>` - A list of synonyms of the media
 
 ### `BroadcastObject`
 
@@ -359,6 +410,12 @@ A set of pictures.
   * **`large`**: `String` - An absulute URL to the high(er) resolution picture
   * **`medium`**: `String` - An absulute URL to the medium resolution picture
 
+### `SortingMethodEnum`
+
+The method of sorting the entries in the response lists.
+
+* **`SortingMethodEnum`**: `String` - One of `anime_title`, `list_score`, `list_updated_at`, `anime_start_date`
+
 ### `SeasonObject`
 
 Representing a season in a year.
@@ -367,3 +424,24 @@ Representing a season in a year.
   * **`season`**: `String` - The season in a year (E.g. `fall`).
   * **`year`**: `Int` - The four digits integer representation of a year (E.g. `2002`).
 
+### `ListStatusEnum`
+
+The list status of the user.
+
+* **`ListStatusEnum`**: `String` - One of `watching`, `completed`, `on_hold`, `dropped`, `plan_to_watch`
+
+### `MyListStatusObject`
+
+The library entry.
+
+* **`MyListStatusObject`**: `Object`
+  * **`comments`**: `String`
+  * **`is_rewatching`**: `Bool`
+  * **`num_episodes_watched`**: `Int`
+  * **`num_times_rewatched`**: `Int`
+  * **`priority`**: `Int`
+  * **`rewatch_value`**: `Int`
+  * **`score`**: `Double`
+  * **`status`**: **[`ListStatusEnum`](#liststatusenum)**
+  * **`tags`**: ?
+  * **`updated_at`**: [`Date`](#date)
