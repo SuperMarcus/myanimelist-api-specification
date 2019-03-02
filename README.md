@@ -6,7 +6,7 @@ undocumented APIs. GPLv3 Licensed.
 
 ## Introduction
 
-For starters, I have only been a MyAnimeList user for a short period of time.
+For starters, I've only been a MyAnimeList user for a short period of time.
 Nevertheless, as far as I know, MyAnimeList was and still is the largest anime
 information database website, which also happens to be infamous to the developers
 for its unstable APIs.
@@ -31,6 +31,9 @@ It uses MAL's private (or at least unpublished) APIs and is subject to change.
    * [Password Grant](#password-grant)
    * [Refresh Token Grant](#refresh-token-grant)
    * [Handle Authentication Responses](#handle-authentication-responses)
+5. [Requesting Resources](#requesting-resources)
+   * [Paging](#paging)
+   * [Fields](#fields)
 
 ## Requests
 
@@ -48,7 +51,7 @@ X-MAL-Client-ID: 6114d00ca681b7701d1e15fe11a4987e
 ```
 
 >
-> **Note**: Always request with the `X-MAL-Client-ID` header. Currently the only
+> **Note**: Always include the `X-MAL-Client-ID` header. Currently the only
 > known client id is that of the MAL's official Android app.
 >
 
@@ -61,7 +64,7 @@ If the request **succeeded**, the server returns `200` with a `data` object at t
 root of its response JSON object.
 
 > Example Response
-```JavaScript
+```JSON
 HTTP/1.1 200 OK
 
 {
@@ -92,7 +95,7 @@ If the request **failed**, the server respond with an HTTP error status
 and returns an error message.
 
 > Example Response
-```JavaScript
+```JSON
 HTTP/1.1 400 Bad Request
 Content-Type: application/json; charset=UTF-8
 
@@ -178,7 +181,7 @@ expires after `expires_in` seconds, use the `refresh_token` to re-authenticate t
 session. See [Refresh Token Grant](#refresh-token-grant).
 
 > Example Response
-```
+```JSON
 HTTP/1.1 200 OK
 Content-Type: application/json; charset=UTF-8
 
@@ -202,7 +205,7 @@ Further requests should be made with the `Authorization` header. See [Making Req
 | *(Optional)* `hint` | **String**: An optional message about how the error occurred. |
 
 > Example Response
-```
+```JSON
 HTTP/2 401
 Content-Type: application/json; charset=UTF-8
 
@@ -212,3 +215,56 @@ Content-Type: application/json; charset=UTF-8
   "hint": "Cannot decrypt the refresh token"
 }
 ```
+
+## Requesting Resources
+
+Resource requests are made to the endpoint `https://api.myanimelist.net/v0.21`.
+* Always include the `X-MAL-Client-ID` header, or you will get an unauthorized
+  error. See [Making Requests](#requests)
+* There happens to be a different endpoint `https://api.myanimelist.net/v0.8`. But
+  when you make a mutational request to this endpoint, the server will responds
+  an outdated app error.
+
+### Paging
+
+Set the following GET parameters in your request url to limit the number of
+resources included in the response:
+
+| Parameter | Value |
+| --------- | ----- |
+| `limit`   | The maximum number of elements to be contained in the data section. |
+| `offset`  | The page number that the client is requesting. |
+
+> Example Request URL with Paging
+```
+https://api.myanimelist.net/v0.21/anime?q=An+Anime+Title&limit=5&offset=0
+```
+
+When the response is paged, the JSON object returned also includes a `paging`
+section. The `next` entry in the `paging` section includes the full URL to the
+next page.
+
+> Exampled Response with Paging
+```JSON
+{
+  "data": [ ... ],
+  "paging": {
+    "next": "https:\/\/api.myanimelist.net\/v0.21\/anime?offset=5&q=An+Anime+Title&limit=5"
+  }
+}
+```
+
+### Fields
+
+When you make a request to a specific resource, you can set the `fields`
+parameter in your URL query to limit the fields responded by the server.
+* Includes a `fields` parameter whenever you can. This increases the load
+  speed and (perhaps) decreases the load on MAL's server as well.
+* The value of the `fields` parameter is a comma seperated list
+  corresponding to the JSON keys that will be returned in the response.
+
+> Example Request URL with Fields parameter
+```
+https://api.myanimelist.net/v0.21/anime?q=An+Anime+Title&fields=alternative_titles,media_type,my_list_status{start_date,finish_date}
+```
+
