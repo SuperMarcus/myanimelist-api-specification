@@ -394,6 +394,8 @@ An `AnimeObject` represents an anime in MAL's database.
     * **`title`**: `String` - The canonical (?) title of the anime.
     * **`updated_at`**: [`Date`](#date) - The last time that the information is updated on MyAnimeList.
     * **`my_list_status`**: [`MyListStatusObject`](#myliststatusobject)
+    * **`background`**: `String` - Background story of the anime
+    * **`related_anime`**: `Array<AnimeObject>` - A list of anime related to this anime
 
 ### `AlternativeTitlesObject`
 
