@@ -26,28 +26,49 @@ change.
 
 ## Table of Contents
 
-0. [Introduction](#introduction)
-1. [Table of Contents](#table-of-contents)
-2. [Requests](#requests)
-3. [Responses](#responses)
-4. [Authentication and Authorization](#authentication-and-authorization)
-   * [Password Grant](#password-grant)
-   * [Refresh Token Grant](#refresh-token-grant)
-   * [Handle Authentication Responses](#handle-authentication-responses)
-5. [Requesting Resources](#requesting-resources)
-   * [Paging](#paging)
-   * [Fields](#fields)
-6. [References](#references)
-7. [Response Objects](#response-objects)
+- [MyAnimeList Unofficial API Specification](#myanimelist-unofficial-api-specification)
+  - [Introduction](#introduction)
+  - [Table of Contents](#table-of-contents)
+  - [Requests](#requests)
+  - [Responses](#responses)
+  - [Authentication and Authorization](#authentication-and-authorization)
+    - [Password Grant](#password-grant)
+    - [Refresh Token Grant](#refresh-token-grant)
+    - [Handle Authentication Responses](#handle-authentication-responses)
+  - [Requesting Resources](#requesting-resources)
+    - [Paging](#paging)
+    - [Fields](#fields)
+  - [References](#references)
+    - [Search Anime](#search-anime)
+      - [Parameters](#parameters)
+      - [Response](#response)
+    - [Library Entries](#library-entries)
+      - [Parameters](#parameters-1)
+      - [Response](#response-1)
+    - [Update Entries](#update-entries)
+      - [Request Parameters](#request-parameters)
+      - [Response](#response-2)
+    - [Reference to the Current User](#reference-to-the-current-user)
+  - [Response Objects](#response-objects)
+    - [`AnimeObject`](#animeobject)
+    - [`AlternativeTitlesObject`](#alternativetitlesobject)
+    - [`BroadcastObject`](#broadcastobject)
+    - [`CalendarDate`](#calendardate)
+    - [`Date`](#date)
+    - [`PictureObject`](#pictureobject)
+    - [`SortingMethodEnum`](#sortingmethodenum)
+    - [`SeasonObject`](#seasonobject)
+    - [`ListStatusEnum`](#liststatusenum)
+    - [`MyListStatusObject`](#myliststatusobject)
 
 ## Requests
 
-API Endpoint: `https://api.myanimelist.net/v0.21`
+API Endpoint: `https://api.myanimelist.net/v2`
 Client Identifier (from MAL's official Android app): `6114d00ca681b7701d1e15fe11a4987e`
 
 > Example Request
 ```
-GET /v0.21/anime/search?status=not_yet_aired&limit=1&offset=0&fields=alternative_titles HTTP/1.1
+GET /v2/anime/search?status=not_yet_aired&limit=1&offset=0&fields=alternative_titles HTTP/1.1
 Host: api.myanimelist.net
 Accept: application/json
 User-Agent: NineAnimator/2 CFNetwork/976 Darwin/18.2.0
@@ -94,7 +115,7 @@ HTTP/1.1 200 OK
     }
   ],
   "paging": {
-    "next": "https:\/\/api.myanimelist.net\/v0.8\/anime\/search?offset=2&status=not_yet_aired&limit=2&fields=alternative_titles"
+    "next": "https:\/\/api.myanimelist.net\/v2\/anime\/search?offset=2&status=not_yet_aired&limit=2&fields=alternative_titles"
   }
 }
 ```
@@ -122,7 +143,7 @@ Once authenticated, all of your requests should include the header
 
 * Authenticate with the account's username and password.
 
-Send a url-form encoded `POST` request to `https://api.myanimelist.net/v0.21/auth/token`
+Send a url-form encoded `POST` request to `https://api.myanimelist.net/v2/auth/token`
 with the following parameters:
 
 | Parameter     | Value                                           |
@@ -134,7 +155,7 @@ with the following parameters:
 
 > Example Request
 ```
-POST /v0.21/auth/token HTTP/1.1
+POST /v2/auth/token HTTP/1.1
 Host: api.myanimelist.net
 Accept: application/json
 User-Agent: NineAnimator/2 CFNetwork/976 Darwin/18.2.0
@@ -151,7 +172,7 @@ client_id=6114d00ca681b7701d1e15fe11a4987e&grant_type=password&password=xxxxxx-y
   `refresh_token`
 
 Send a url-form encoded `POST` request to `https://myanimelist.net/v1/oauth2/token`
-(note this url is different from the one used in the Password Grant).
+(note this url is **different** from the one used in the Password Grant).
 
 | Parameter       | Value                                              |
 | --------------- | -------------------------------------------------- |
@@ -161,7 +182,7 @@ Send a url-form encoded `POST` request to `https://myanimelist.net/v1/oauth2/tok
 
 > Example Request
 ```
-POST /v0.21/auth/token HTTP/1.1
+POST /v1/auth/token HTTP/1.1
 Host: myanimelist.net
 Accept: application/json
 User-Agent: NineAnimator/2 CFNetwork/976 Darwin/18.2.0
@@ -226,9 +247,10 @@ Content-Type: application/json; charset=UTF-8
 
 ## Requesting Resources
 
-Resource requests are made to the endpoint `https://api.myanimelist.net/v0.21`.
+Resource requests are made to the endpoint `https://api.myanimelist.net/v2`.
 * Always include the `X-MAL-Client-ID` header, or you will get an unauthorized
   error. See [Making Requests](#requests)
+* The old endpoint `https://api.myanimelist.net/v0.21` still works.
 * There happens to be a different endpoint `https://api.myanimelist.net/v0.8`. But
   when you make a mutational request to this endpoint, the server will responds
   an outdated app error.
@@ -245,7 +267,7 @@ resources included in the response:
 
 > Example Request URL with Paging
 ```
-https://api.myanimelist.net/v0.21/anime?q=An+Anime+Title&limit=5&offset=0
+https://api.myanimelist.net/v2/anime?q=An+Anime+Title&limit=5&offset=0
 ```
 
 When the response is paged, the JSON object returned also includes a `paging`
@@ -257,7 +279,7 @@ next page.
 {
   "data": [ ... ],
   "paging": {
-    "next": "https:\/\/api.myanimelist.net\/v0.21\/anime?offset=5&q=An+Anime+Title&limit=5"
+    "next": "https:\/\/api.myanimelist.net\/v2\/anime?offset=5&q=An+Anime+Title&limit=5"
   }
 }
 ```
@@ -275,13 +297,13 @@ parameter in your URL query to limit the fields responded by the server.
 
 > Example Request URL with Fields parameter
 ```
-https://api.myanimelist.net/v0.21/anime?q=An+Anime+Title&fields=alternative_titles,media_type,my_list_status{start_date,finish_date}
+https://api.myanimelist.net/v2/anime?q=An+Anime+Title&fields=alternative_titles,media_type,my_list_status{start_date,finish_date}
 ```
 
 ## References
 
 A list of known request paths and response objects.
-* Paths are relative to the API endpoint: `https://api.myanimelist.net/v0.21`
+* Paths are relative to the API endpoint: `https://api.myanimelist.net/v2`
 * Responses are JSON encoded objects with utf8 encodings.
 
 ### Search Anime
@@ -338,7 +360,7 @@ You can reference to the currently authenticated user with the
 
 > Example Request URL
 ```
-https://api.myanimelist.net/v0.21/users/@me/animelist
+https://api.myanimelist.net/v2/users/@me/animelist
 ```
 
 ## Response Objects
