@@ -6,23 +6,13 @@ undocumented APIs. GPLv3 Licensed.
 
 ## Introduction
 
-For starters, I've only been a MyAnimeList user for a short period of time.
-Nevertheless, as far as I know, MyAnimeList was and still is the largest anime
-information database website, which also happens to be infamous to the developers
-for its unstable APIs.
+For starters, I've only been a MyAnimeList user for a short period of time. Nevertheless, as far as I know, MyAnimeList was and still is the largest anime information database website, which also happens to be infamous to the developers for its unstable APIs.
 
-This document is intended to create a up-to-date speficiation for the private
-APIs that MyAnimeList is using in its official mobile apps. The goal is to
-encourage the developments of third party and (particuarly) **open source**
-applications.
+This document intends to create an up-to-date specification for the private (open-beta) APIs that MyAnimeList is using in its official mobile apps. The goal is to encourage the developments of third-party and (particularly) **open source** applications.
 
-As mentioned, the specifications here (mostly) came from the analysis of
-MyAnimeList's official Android app and some popular third party applications.
-It uses MAL's private (or at least unpublished) APIs and is subject to change.
+As mentioned, the specifications here (mostly) came from the analysis of MyAnimeList's official Android app and some popular third-party applications. Note because this document uses MAL's private (or at least unpublished) APIs, everything is subject to change.
 
-This document only discovers the anime-related APIs. But feel free to create
-a pull request / issue if you have something related that you want to share or
-change.
+This document only discovers the anime-related APIs. But feel free to create a pull request/issue if you have something related that you want to share or change.
 
 ## Table of Contents
 
@@ -48,6 +38,9 @@ change.
     - [Update Entries](#update-entries)
       - [Request Parameters](#request-parameters)
       - [Response](#response-2)
+    - [Remove Entries](#remove-entries)
+      - [Request Parameters](#request-parameters-1)
+      - [Response](#response-3)
     - [Reference to the Current User](#reference-to-the-current-user)
   - [Response Objects](#response-objects)
     - [`AnimeObject`](#animeobject)
@@ -342,16 +335,34 @@ A list of known request paths and response objects.
 ### Update Entries
 
 * **Request Path**: `/anime/<Anime Identifier>/my_list_status`
-* Method: `PUT`
+* Method: Either `PATCH` or `PUT`
 
 #### Request Parameters
 
-The parameters are url-form encoded in the body of the request.
-* The request parameters can be one of the entries in the [`MyListStatusObject`](#myliststatusobject)
+The parameters are url-form encoded in the body of the request. The parameter keys resembles those found in [`MyListStatusObject`](#myliststatusobject).
+
+* **`num_watched_episodes`**: An integer denoting the number of episodes watched. Note this is different from the key in [`MyListStatusObject`](#myliststatusobject) (#1).
+* **`status`**: [`ListStatusEnum`](#liststatusenum)
+* **`score`**: An integer representing the user's rating. Value ranging from 1 to 10. Set this value to 0 to remove the user's rating.
+* **`start_date`**: A year-month-day string that indicates when the user started watching the entry (eg. `2020-1-1`).
+* **`finish_date`**: A year-month-day string that indicates when the user finished watching the entry (eg. `2020-1-1`).
 
 #### Response
 
 * Root Response Object: [`MyListStatusObject`](#myliststatusobject) - The updated status object
+
+### Remove Entries
+
+* **Request Path**: `/anime/<Anime Identifier>/my_list_status`
+* Method: `DELETE`
+
+#### Request Parameters
+
+No parameters needed for this operation.
+
+#### Response
+
+An empty array `[]` for a successful removal.
 
 ### Reference to the Current User
 
