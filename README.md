@@ -29,19 +29,25 @@ This document only discovers the anime-related APIs. But feel free to create a p
     - [Paging](#paging)
     - [Fields](#fields)
   - [References](#references)
-    - [Search Anime](#search-anime)
+    - [User Information](#user-information)
       - [Parameters](#parameters)
       - [Response](#response)
-    - [Library Entries](#library-entries)
+      - [Example Flow](#example-flow)
+    - [Search Anime](#search-anime)
       - [Parameters](#parameters-1)
       - [Response](#response-1)
-    - [Update Entries](#update-entries)
-      - [Request Parameters](#request-parameters)
+    - [Library Entries](#library-entries)
+      - [Parameters](#parameters-2)
       - [Response](#response-2)
-    - [Remove Entries](#remove-entries)
-      - [Request Parameters](#request-parameters-1)
+    - [Update Entries](#update-entries)
+      - [Parameters](#parameters-3)
       - [Response](#response-3)
-    - [Reference to the Current User](#reference-to-the-current-user)
+      - [Example Flow](#example-flow-1)
+    - [Remove Entries](#remove-entries)
+      - [Parameters](#parameters-4)
+      - [Response](#response-4)
+      - [Example Flow](#example-flow-2)
+    - [Referring the Current User](#referring-the-current-user)
   - [Response Objects](#response-objects)
     - [`AnimeObject`](#animeobject)
     - [`AlternativeTitlesObject`](#alternativetitlesobject)
@@ -53,6 +59,7 @@ This document only discovers the anime-related APIs. But feel free to create a p
     - [`SeasonObject`](#seasonobject)
     - [`ListStatusEnum`](#liststatusenum)
     - [`MyListStatusObject`](#myliststatusobject)
+    - [`UserObject`](#userobject)
 
 ## Requests
 
@@ -299,6 +306,39 @@ A list of known request paths and response objects.
 * Paths are relative to the API endpoint: `https://api.myanimelist.net/v2`
 * Responses are JSON encoded objects with utf8 encodings.
 
+### User Information
+
+* **Request Path**: `/users/<user id>`
+* Method: `GET`
+
+#### Parameters
+
+This operation doesn't require any parameters. Note `@me` can be used in place of `<user id>`. See [Referring the Current User](#referring-the-current-user).
+
+#### Response
+
+An [`UserObject`](#userobject).
+
+#### Example Flow
+
+> Example Request
+
+```
+GET https://api.myanimelist.net/v2/users/@me HTTP/2.0
+authorization: Bearer <bearer token>
+```
+
+> Example Response
+
+```
+HTTP/2.0 200
+content-type: application/json; charset=UTF-8
+
+{"id":1234567,"name":"username","location":"some location","joined_at":"2010-01-01T01:11:11+00:00"}
+```
+
+---
+
 ### Search Anime
 
 * **Request Path**: `/anime`
@@ -314,6 +354,8 @@ A list of known request paths and response objects.
 
 * Root Response Object: `Object`
   * **`data`**: `Array<AnimeObject>` - A list of [`AnimeObject`](#animeobject). The results from the search.
+
+---
 
 ### Library Entries
 
@@ -332,31 +374,58 @@ A list of known request paths and response objects.
 * Root Response Object: `Object`
   * **`data`**: `Array<AnimeObject>` - A list of [`AnimeObject`](#animeobject).
 
+---
+
 ### Update Entries
 
 * **Request Path**: `/anime/<Anime Identifier>/my_list_status`
 * Method: Either `PATCH` or `PUT`
 
-#### Request Parameters
+#### Parameters
 
 The parameters are url-form encoded in the body of the request. The parameter keys resembles those found in [`MyListStatusObject`](#myliststatusobject).
 
-* **`num_watched_episodes`**: An integer denoting the number of episodes watched. Note this is different from the key in [`MyListStatusObject`](#myliststatusobject) (#1).
-* **`status`**: [`ListStatusEnum`](#liststatusenum)
-* **`score`**: An integer representing the user's rating. Value ranging from 1 to 10. Set this value to 0 to remove the user's rating.
-* **`start_date`**: A year-month-day string that indicates when the user started watching the entry (eg. `2020-1-1`).
-* **`finish_date`**: A year-month-day string that indicates when the user finished watching the entry (eg. `2020-1-1`).
+| Parameter | Value |
+| --------- | ----- |
+| `num_watched_episodes` | An integer denoting the number of episodes watched. Note this is different from the key in [`MyListStatusObject`](#myliststatusobject) (#1). |
+| `status` | [`ListStatusEnum`](#liststatusenum) |
+| `score` | An integer representing the user's rating. Value ranging from 1 to 10. Set this value to 0 to remove the user's rating. |
+| `start_date` | A year-month-day string that indicates when the user started watching the entry (eg. `2020-1-1`). |
+| `finish_date` | A year-month-day string that indicates when the user finished watching the entry (eg. `2020-1-1`). |
 
 #### Response
 
 * Root Response Object: [`MyListStatusObject`](#myliststatusobject) - The updated status object
+
+#### Example Flow
+
+> Example Request
+
+```
+PATCH https://api.myanimelist.net/v2/anime/34881/my_list_status HTTP/2.0
+authorization: Bearer <bearer token>
+content-type: application/x-www-form-urlencoded
+
+finish_date=2020-01-1&start_date=2020-02-01&num_watched_episodes=2
+```
+
+> Example Response
+
+```
+HTTP/2.0 200
+content-type: application/json; charset=UTF-8
+
+{"status":"on_hold","score":0,"num_episodes_watched":2,"is_rewatching":false,"updated_at":"2020-01-1T20:50:00+00:00","start_date":"2020-01-01","finish_date":"2020-02-1","priority":0,"num_times_rewatched":0,"rewatch_value":0,"tags":[],"comments":""}
+```
+
+---
 
 ### Remove Entries
 
 * **Request Path**: `/anime/<Anime Identifier>/my_list_status`
 * Method: `DELETE`
 
-#### Request Parameters
+#### Parameters
 
 No parameters needed for this operation.
 
@@ -364,7 +433,27 @@ No parameters needed for this operation.
 
 An empty array `[]` for a successful removal.
 
-### Reference to the Current User
+#### Example Flow
+
+> Example Request
+
+```
+DELETE https://api.myanimelist.net/v2/anime/39590/my_list_status HTTP/2.0
+authorization: Bearer <bearer token>
+```
+
+> Example Response
+
+```
+HTTP/2.0 200
+content-type: application/json; charset=UTF-8
+
+[]
+```
+
+---
+
+### Referring the Current User
 
 You can reference to the currently authenticated user with the
 `@me` placeholder in the request URL.
@@ -480,3 +569,11 @@ The library entry.
   * **`status`**: **[`ListStatusEnum`](#liststatusenum)**
   * **`tags`**: ?
   * **`updated_at`**: [`Date`](#date)
+
+### `UserObject`
+
+* **`UserObject`**: `Object`
+  * **`id`**: `Int` An integer id of the user.
+  * **`name`**: `String`
+  * **`location`**: `String`
+  * **`joined_at`**: [`Date`](#date)
