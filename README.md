@@ -33,6 +33,9 @@ This document only discovers the anime-related APIs. But feel free to create a p
       - [Parameters](#parameters)
       - [Response](#response)
       - [Example Flow](#example-flow)
+    - [Anime Information](#anime-information)
+      - [Parameters](#parameters-5)
+      - [Response](#response-5)
     - [Search Anime](#search-anime)
       - [Parameters](#parameters-1)
       - [Response](#response-1)
@@ -336,6 +339,21 @@ content-type: application/json; charset=UTF-8
 
 {"id":1234567,"name":"username","location":"some location","joined_at":"2010-01-01T01:11:11+00:00"}
 ```
+
+---
+
+### Anime Information
+
+* **Request Path**: `/anime/<anime id>`
+* Method: `GET`
+
+#### Parameters
+
+This operation supports the use of the [`fields`](#fields) parameter.
+
+#### Response
+
+An [`AnimeObject`](#animeobject).
 
 ---
 
