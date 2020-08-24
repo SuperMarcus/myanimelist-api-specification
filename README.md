@@ -494,11 +494,12 @@ An `AnimeObject` represents an anime in MAL's database.
     * **`broadcast`**: [`BroadcastObject`](#broadcastobject)
     * **`created_at`**: [`Date`](#date)
     * **`end_date`**: [`CalendarDate`](#calendardate) - The date at which the anime ended.
+    * **`genres`**: `Array`<[`GenreObject`](#genreobject)> - Genres of the anime.
     * **`id`**: `Int` - The identifier of this media on MyAnimeList.
     * **`main_picture`**: [`PictureObject`](#pictureobject) - The poster artwork of the anime.
     * **`mean`**: `Double` - The mean score of this media on MyAnimeList.
-    * **`media_type`**: `String` - The type of this media (e.g. `tv`).
-    * **`nsfw`**: `String` - The NSFW state for this media (e.g. `white`).
+    * **`media_type`**: `String` - The type of this media (`tv`, `ova`, `movie`, `special`, `ona`, `music`, `unknown`).
+    * **`nsfw`**: `String` - The NSFW state for this media (`white`, `gray`, `black`).
     * **`num_episodes`**: `Int` - The number of episodes in this anime.
     * **`num_favorites`**: `Int` - The number of users that added this media to their favorites.
     * **`num_list_users`**: `Int` - The number of uses that added this media to their lists.
@@ -507,13 +508,16 @@ An `AnimeObject` represents an anime in MAL's database.
     * **`rank`**: `Int` - The rankings of this anime.
     * **`start_date`**: [`CalendarDate`](#calendardate) - The date at which the anime started.
     * **`start_season`**: [`SeasonObject`](#seasonobject) - The season at which the anime started broadcasting.
-    * **`status`**: `String` - An enumeration representing the broadcasting status of the anime (E.g. `finished_airing`).
+    * **`status`**: `String` - An enumeration representing the broadcasting status of the anime (`finished_airing`, `currently_airing`, `not_yet_aired`).
     * **`synopsis`**: `String` - The synopsis of the anime.
+    * **`source`**: `String` - The original work that inspired this anime (`original`, `manga`, `4_koma_manga`, `web_manga`, `digital_manga`, `novel`, `light_novel`, `visual_novel`, `game`, `card_game`, `book`, `picture_book`, `radio`, `music`, `other`).
+    * **`studio`**: [`AnimeStudioObject`](#animestudioobject)
     * **`title`**: `String` - The canonical (?) title of the anime.
     * **`updated_at`**: [`Date`](#date) - The last time that the information is updated on MyAnimeList.
     * **`my_list_status`**: [`MyListStatusObject`](#myliststatusobject)
     * **`background`**: `String` - Background story of the anime
     * **`related_anime`**: `Array<AnimeObject>` - A list of anime related to this anime
+    * **`rating`**: `String` - The rating of this anime (`g` All Ages, `pg` Children, `pg_13` Teens 13 and Older, `r` 17+ (violence & profanity), `r+` Profanity & Mild Nudity, `rx` Hentai).
 
 ### `AlternativeTitlesObject`
 
@@ -523,6 +527,14 @@ The set of titles and synonyms of the anime.
   * **`en`**: `String` - The English title of the media
   * **`ja`**: `String` - The original (native) name of the media
   * **`synonyms`**: `Array<String>` - A list of synonyms of the media
+
+### `AnimeStudioObject`
+
+The studio of the anime.
+
+* **`AnimeStudioObject`**: `Object`
+  * **`id`**: `Integer` - The id of the studio
+  * **`name`**: `String` - The name of the studio
 
 ### `BroadcastObject`
 
@@ -543,6 +555,14 @@ A simple date formatted as `yyyy-mm-dd` (e.g. `2007-02-08`).
 A specific time.
 
 * **`Date`**: `String` - A [`ISO 8601`](https://en.wikipedia.org/wiki/ISO_8601) formatted time string.
+
+### `GenreObject`
+
+The genre of the anime.
+
+* **`GenreObject`**: `Object`
+  * **`id`**: `Integer` - The id of the genre
+  * **`name`**: `String` - The name of the genre (`Action`, `Adventure`, `Cars`, `Comedy`, `Dementia`, `Demons`, `Drama`, `Ecchi`, `Fantasy`, `Game`, `Harem`, `Hentai`, `Historical`, `Horror`, `Josei`, `Kids`, `Magic`, `Martial Arts`, `Mecha`, `Military`, `Music`, `Mystery`, `Parody`, `Police`, `Psychological`, `Romance`, `Samurai`, `School`, `Sci-Fi`, `Seinen`, `Shoujo`, `Shoujo Ai`, `Shounen`, `Shounen Ai`, `Slice of Life`, `Space`, `Sports`, `Super Power`, `Supernatural`, `Thriller`, `Vampire`, `Yaoi`, `Yuri`)
 
 ### `PictureObject`
 
